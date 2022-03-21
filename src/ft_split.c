@@ -6,16 +6,16 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 13:35:13 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 13:35:50 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 16:07:41 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
 
-int		countcase(char const *s, char c)
+int	countcase(char const *s, char c)
 {
-	int		res;
-	int		i;
+	int	res;
+	int	i;
 
 	i = 0;
 	res = 0;
@@ -28,9 +28,9 @@ int		countcase(char const *s, char c)
 	return (res + 1);
 }
 
-int		sizel(char const *s, int i, char c)
+int	sizel(char const *s, int i, char c)
 {
-	int		len;
+	int	len;
 
 	len = 0;
 	while (s[i] != c && s[i])
@@ -43,7 +43,7 @@ int		sizel(char const *s, int i, char c)
 
 void	fill_tab(char const *s, char c, int x, char *dst)
 {
-	int		i;
+	int	i;
 
 	i = 0;
 	while (s[x] != c && s[x])
@@ -52,10 +52,15 @@ void	fill_tab(char const *s, char c, int x, char *dst)
 		i++;
 		x++;
 	}
+	if (dst[0] == '/')
+	{
+		dst[i] = '/';
+		i++;
+	}
 	dst[i] = '\0';
 }
 
-int		skipc(const char *s, char c, int i)
+int	skipc(const char *s, char c, int i)
 {
 	while (s[i] == c && s[i])
 		i++;
@@ -64,29 +69,26 @@ int		skipc(const char *s, char c, int i)
 
 char	**ft_split(char const *s, char c)
 {
-	char	**rtn;
-	int		i;
-	int		j;
-	int		len;
+	char		**rtn;
+	t_split		split;
 
-	i = 0;
-	j = 0;
-	len = 0;
 	if (s == 0)
 		return (0);
-	if (!(rtn = malloc(sizeof(char*) * (countcase(s, c) + 1))))
+	rtn = malloc(sizeof(char*) * (countcase(s, c) + 1));
+	if (!rtn)
 		return (0);
-	i = skipc(s, c, i);
-	while (j <= countcase(s, c) && s[i])
+	init_split(&split, s, c);
+	while (split.j <= countcase(s, c) && s[split.i])
 	{
-		len = sizel(s, i, c);
-		if (!(rtn[j] = malloc(sizeof(char) * len + 1)))
+		split.len = sizel(s, split.i, c);
+		rtn[split.j] = malloc(sizeof(char) * split.len + 2);
+		if (!(rtn[split.j]))
 			return (0);
-		fill_tab(s, c, i, rtn[j]);
-		i += len;
-		i = skipc(s, c, i);
-		j++;
+		fill_tab(s, c, split.i, rtn[split.j]);
+		split.i += split.len;
+		split.i = skipc(s, c, split.i);
+		split.j++;
 	}
-	rtn[j] = 0;
+	rtn[split.j] = 0;
 	return (rtn);
 }

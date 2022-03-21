@@ -6,62 +6,11 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:32:36 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 13:32:56 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 15:38:13 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
-
-int	ft_strcmp(char *s1, char *s2)
-{
-	int	i;
-
-	i = 0;
-	while (s1[i] && s2[i] && s1[i] == s2[i])
-	{
-		if (s1[i] != s2[i])
-			return (0);
-		i++;
-	}
-	if (i == 4)
-		return (1);
-	return(0);
-}
-
-int	ft_search(char *str)
-{
-	int	i;
-	char s[4] = "PATH";
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[0] == 'P')
-			if (ft_strcmp(str + i, s) == 1)
-			{
-				return (1);
-			}
-		i++;
-	}
-	return (0);
-}
-
-char	*ft_substr(char **envp)
-{
-	int		i;
-	int		res;
-
-	i = 0;
-	while (envp[i])
-	{
-		res = ft_search(envp[i]);
-		if (res == 1)
-			break;
-		i++;
-	}
-	return (envp[i] + 5);
-}
-
 /*
 int	*init_end(char *f1, char *f2)
 {
@@ -79,52 +28,64 @@ int	*init_end(char *f1, char *f2)
 	return (end);
 }
 */
-/*int	pipex(int f1, int f2, char **argv, char **envp)
+
+void	childpro1(int fd, t_arg *data, int *end)
+{
+	int		i;
+	char	*cmd;
+
+	i = -1;
+	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
+		return (perror("Dup2: "));
+	close(end[0]);
+	while (data->path[++i])
+	{
+		cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
+		execve(cmd, data->cmd1_arg + 1, data->envp);
+		//perror(cmd);
+		free(cmd);
+	}
+	exit(EXIT_FAILURE);
+}
+
+void	pipex(int f1, int f2, t_arg *data)
 {
 	int		end[2];
 	pid_t	parent;
 
 	pipe(end);
+	(void)f2;
 	parent = fork();
 	if (parent < 0)
-	{
-		perror("Fork:");
-		return (1);
-	}
+		return (perror("Fork:"));
 	if(parent == 0)
-		child_process(f1, argv[2]);
-	else
-		parent_process(f2, argv[3]);
-	return (0);
-}*/
+		childpro1(f1, data, end);
+	close(end[0]);
+	close(end[1]);
+}
 
 int	main(int argc, char **argv, char **envp)
 {
-	//int	f1;
-	//int	f2;
-	//int	i;
+	int	f1;
+	int	f2;
+	t_arg	data;
 
-	//i = 0;
 	if (argc < 5 || argc > 5 || !envp)
 	{
 		ft_printf("Error, wrong number of argumet\n");
 		ft_printf("or cannot reach environnemnt variable PATH.\n");
 		return (1);
 	}
-	//f1 = open(argv[1], O_RDONLY);
-	//f2 = open (argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
-	/*if (f1 < 0 || f2 < 0)
+	f1 = open(argv[1], O_RDONLY);
+	f2 = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	if (f1 < 0 || f2 < 0)
 	{
 		ft_printf("Cannot open %s or create %s\n", argv[1], argv[4]);
 		return (1);
 	}
-	pipex(f1, f2, argv, envp);*/
-	(void)argv;
-	/*while (envp[i])
-	{
-		ft_printf("envp = %s\n", envp[i]);
-		i++;
-	}*/
-	ft_printf("rtn = %s\n", ft_substr(envp));
+	init_arg(&data, envp, argv);
+	pipex(f1, f2, &data);
+	free_arg(&data);
+	//ft_printf("rtn = %s\n", ft_substr(envp));
 	return (0);
 }

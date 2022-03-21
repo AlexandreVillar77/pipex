@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 13:33:23 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 13:33:42 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 15:36:51 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,39 @@ char	*ft_substr(char **envp)
 		i++;
 	}
 	return (envp[i] + 5);
+}
+
+void	init_arg(t_arg *arg, char **envp, char **argv)
+{
+	arg->cmd1_arg = ft_split(argv[2], ' ');
+	arg->cmd2_arg = ft_split(argv[3], ' ');
+	arg->path = ft_split(ft_substr(envp), ':');
+	arg->envp = envp;
+}
+
+void	free_arg(t_arg *arg)
+{
+	int	i;
+
+	i = -1;
+	if (arg->cmd1_arg)
+	{
+		while (arg->cmd1_arg[++i])
+			free(arg->cmd1_arg[i]);
+		free(arg->cmd1_arg);
+	}
+	i = -1;
+	if (arg->cmd2_arg)
+	{
+		while (arg->cmd2_arg[++i])
+			free(arg->cmd2_arg[i]);
+		free(arg->cmd2_arg);
+	}
+	i = -1;
+	if (arg->path)
+	{
+		while (arg->path[++i])
+			free(arg->path[i]);
+		free(arg->path);
+	}
 }
