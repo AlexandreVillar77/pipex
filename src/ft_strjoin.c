@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 14:40:36 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:05:19 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 16:50:01 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ void	init_split(t_split *split, const char *s, char c)
 	split->len = 0;
 }
 
-size_t		ft_strlcat(char *restrict dst,
-		const char *restrict src, size_t dstsize)
+size_t	ft_strlcat(char *restrict dst,
+			const char *restrict src, size_t dstsize)
 {
 	int		i;
 	int		di;
@@ -43,8 +43,8 @@ size_t		ft_strlcat(char *restrict dst,
 	return (dstsize + si);
 }
 
-size_t		ft_strlcpy(char *restrict dst,
-		const char *restrict src, size_t dstsize)
+size_t	ft_strlcpy(char *restrict dst,
+			const char *restrict src, size_t dstsize)
 {
 	int		i;
 
@@ -73,7 +73,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (0);
 	s1s = ft_strlen((char *)s1);
 	s2s = ft_strlen((char *)s2);
-	if (!(rtn = malloc(sizeof(char) * s1s + s2s + 1)))
+	rtn = malloc(sizeof(char) * s1s + s2s + 1);
+	if (!rtn)
 		return (0);
 	ft_strlcpy(rtn, s1, s1s + 1);
 	ft_strlcat(rtn, s2, s1s + s2s + 1);

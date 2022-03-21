@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:25:57 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:37:23 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 16:50:56 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void	childpro1(int fd, t_arg *data, int *end)
 			break ;
 		if (access(cmd, X_OK) == 0)
 			execve(cmd, data->cmd1_arg, data->envp);
-		//perror(cmd);
 		free(cmd);
 	}
 	close(fd);
@@ -50,16 +49,14 @@ void	childpro2(int fd, t_arg *data, int *end)
 	{
 		cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
 		if (!cmd)
-			break;
+			break ;
 		if (access(cmd, X_OK) == 0)
 			execve(cmd, data->cmd2_arg, data->envp);
-		//perror(cmd);
 		free(cmd);
 	}
 	perror(data->cmd2_arg[0]);
 	exit (EXIT_FAILURE);
 }
-
 
 void	pipex(int f1, int f2, t_arg *data)
 {
@@ -88,8 +85,8 @@ void	pipex(int f1, int f2, t_arg *data)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	f1;
-	int	f2;
+	int		f1;
+	int		f2;
 	t_arg	data;
 
 	if (argc < 5 || argc > 5 || !envp)

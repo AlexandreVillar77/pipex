@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 13:33:23 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 15:36:51 by avillar          ###   ########.fr       */
+/*   Updated: 2022/03/21 16:53:25 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,22 +25,21 @@ int	ft_strcmp(char *s1, char *s2)
 	}
 	if (i == 4)
 		return (1);
-	return(0);
+	return (0);
 }
 
 int	ft_search(char *str)
 {
-	int	i;
-	char s[4] = "PATH";
+	int		i;
+	char	*s;
 
+	s = "PATH";
 	i = 0;
 	while (str[i])
 	{
 		if (str[0] == 'P')
 			if (ft_strcmp(str + i, s) == 1)
-			{
 				return (1);
-			}
 		i++;
 	}
 	return (0);
@@ -56,7 +55,7 @@ char	*ft_substr(char **envp)
 	{
 		res = ft_search(envp[i]);
 		if (res == 1)
-			break;
+			break ;
 		i++;
 	}
 	return (envp[i] + 5);
