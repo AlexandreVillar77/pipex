@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 13:35:13 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:48:38 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/04 12:05:07 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,14 +74,14 @@ char	**ft_split(char const *s, char c)
 
 	if (s == 0)
 		return (0);
-	rtn = malloc(sizeof(char *) * (countcase(s, c)) + 1);
+	rtn = malloc(sizeof(char *) * ((countcase(s, c) + 1)));
 	if (!rtn)
 		return (0);
 	init_split(&split, s, c);
 	while (split.j <= countcase(s, c) && s[split.i])
 	{
 		split.len = sizel(s, split.i, c);
-		rtn[split.j] = malloc(sizeof(char) * split.len + 2);
+		rtn[split.j] = malloc(sizeof(char) * (split.len + 2));
 		if (!(rtn[split.j]))
 			return (0);
 		fill_tab(s, c, split.i, rtn[split.j]);

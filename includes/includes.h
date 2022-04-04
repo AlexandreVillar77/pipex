@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:18:33 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:08:01 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/04 11:45:47 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ char	*ft_strjoin(char const *s1, char const *s2);
 int		ft_strcmp(char *s1, char *s2);
 int		ft_search(char *str);
 char	*ft_substr(char **envp);
-void	init_arg(t_arg *arg, char **envp, char **argv);
+t_arg	init_arg(t_arg *arg, char **envp, char **argv);
 void	free_arg(t_arg *arg);
 
 #endif

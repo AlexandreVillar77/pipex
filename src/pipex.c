@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:25:57 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:50:56 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/04 12:46:17 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ void	childpro1(int fd, t_arg *data, int *end)
 	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
 		return (perror("Dup2: "));
 	close(end[0]);
+	close(end[1]);
+	close(fd);
 	while (data->path[++i])
 	{
 		cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
@@ -30,8 +32,8 @@ void	childpro1(int fd, t_arg *data, int *end)
 			execve(cmd, data->cmd1_arg, data->envp);
 		free(cmd);
 	}
-	close(fd);
 	perror(data->cmd1_arg[0]);
+	free_arg(data);
 	exit (EXIT_FAILURE);
 }
 
@@ -43,6 +45,7 @@ void	childpro2(int fd, t_arg *data, int *end)
 	i = -1;
 	if (dup2(fd, STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
 		return (perror("Dup2: "));
+	close(end[0]);
 	close(end[1]);
 	close(fd);
 	while (data->path[++i])
@@ -55,6 +58,7 @@ void	childpro2(int fd, t_arg *data, int *end)
 		free(cmd);
 	}
 	perror(data->cmd2_arg[0]);
+	free_arg(data);
 	exit (EXIT_FAILURE);
 }
 
@@ -102,7 +106,7 @@ int	main(int argc, char **argv, char **envp)
 		ft_printf("Cannot open %s or create %s\n", argv[1], argv[4]);
 		return (1);
 	}
-	init_arg(&data, envp, argv);
+	data = init_arg(&data, envp, argv);
 	pipex(f1, f2, &data);
 	close(f1);
 	close(f2);
