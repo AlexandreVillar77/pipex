@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:18:33 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 15:08:52 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:25:33 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,18 @@ typedef struct s_split{
 	int		i;
 	int		j;
 	int		len;
+	int		mode;
 }				t_split;
 
 //fichier ft_split.c
 int		countcase(char const *s, char c);
 int		sizel(char const *s, int i, char c);
-void	fill_tab(char const *s, char c, int x, char *dst);
+void	fill_tab(char const *s, char c, t_split *split, char *dst);
 int		skipc(const char *s, char c, int i);
-char	**ft_split(char const *s, char c);
+char	**ft_split(char const *s, char c, int mode);
 
 //fichier ft_strjoin.c
-void	init_split(t_split *split, const char *s, char c);
+void	init_split(t_split *split, const char *s, char c, int mode);
 size_t	ft_strlcat(char *restrict dst,
 			const char *restrict src, size_t dstsize);
 size_t	ft_strlcpy(char *restrict dst,

@@ -6,17 +6,18 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 14:40:36 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 16:50:01 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:21:49 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
 
-void	init_split(t_split *split, const char *s, char c)
+void	init_split(t_split *split, const char *s, char c, int mode)
 {
 	split->i = skipc(s, c, 0);
 	split->j = 0;
 	split->len = 0;
+	split->mode = mode;
 }
 
 size_t	ft_strlcat(char *restrict dst,

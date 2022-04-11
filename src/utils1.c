@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 13:33:23 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 14:50:23 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:24:08 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,9 @@ char	*ft_substr(char **envp)
 
 t_arg	init_arg(t_arg *arg, char **envp, char **argv)
 {
-	arg->cmd1_arg = ft_split(argv[2], ' ');
-	if (arg->cmd1_arg[0][0] == '/')
-		arg->cmd1_arg[0][ft_strlen(arg->cmd1_arg[0]) - 1] = '\0';
-	arg->cmd2_arg = ft_split(argv[3], ' ');
-	if (arg->cmd2_arg[0][0] == '/')
-		arg->cmd2_arg[0][ft_strlen(arg->cmd2_arg[0]) - 1] = '\0';
-	arg->path = ft_split(ft_substr(envp), ':');
+	arg->cmd1_arg = ft_split(argv[2], ' ', 0);
+	arg->cmd2_arg = ft_split(argv[3], ' ', 0);
+	arg->path = ft_split(ft_substr(envp), ':', 1);
 	arg->envp = envp;
 	return (*arg);
 }
