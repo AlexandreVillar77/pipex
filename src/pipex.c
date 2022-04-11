@@ -6,11 +6,19 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:25:57 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/04 12:46:17 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:07:36 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
+
+void	ft_closing(int f1, int f2)
+{
+	if (f1 >= 0)
+		close(f1);
+	if (f2 >= 0)
+		close(f2);
+}
 
 void	childpro1(int fd, t_arg *data, int *end)
 {
@@ -20,17 +28,21 @@ void	childpro1(int fd, t_arg *data, int *end)
 	i = -1;
 	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
 		return (perror("Dup2: "));
-	close(end[0]);
-	close(end[1]);
+	ft_closing(end[0], end[1]);
 	close(fd);
-	while (data->path[++i])
+	if (access(data->cmd1_arg[0], X_OK) == 0)
+		execve(data->cmd1_arg[0], data->cmd1_arg, data->envp);
+	else
 	{
-		cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
-		if (!cmd)
-			break ;
-		if (access(cmd, X_OK) == 0)
-			execve(cmd, data->cmd1_arg, data->envp);
-		free(cmd);
+		while (data->path[++i] && data->path != NULL)
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd1_arg, data->envp);
+			free(cmd);
+		}
 	}
 	perror(data->cmd1_arg[0]);
 	free_arg(data);
@@ -45,17 +57,21 @@ void	childpro2(int fd, t_arg *data, int *end)
 	i = -1;
 	if (dup2(fd, STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
 		return (perror("Dup2: "));
-	close(end[0]);
-	close(end[1]);
+	ft_closing(end[0], end[1]);
 	close(fd);
-	while (data->path[++i])
+	if (access(data->cmd2_arg[0], X_OK) == 0)
+		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
+	else
 	{
-		cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
-		if (!cmd)
-			break ;
-		if (access(cmd, X_OK) == 0)
-			execve(cmd, data->cmd2_arg, data->envp);
-		free(cmd);
+		while (data->path[++i])
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd2_arg, data->envp);
+			free(cmd);
+		}
 	}
 	perror(data->cmd2_arg[0]);
 	free_arg(data);
@@ -99,17 +115,17 @@ int	main(int argc, char **argv, char **envp)
 		ft_printf("or cannot reach environnemnt variable PATH.\n");
 		return (1);
 	}
-	f1 = open(argv[1], O_RDONLY);
-	f2 = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	f1 = check_fds(argv, 1);
+	f2 = check_fds(argv, 2);
 	if (f1 < 0 || f2 < 0)
 	{
-		ft_printf("Cannot open %s or create %s\n", argv[1], argv[4]);
+		ft_closing(f1, f2);
 		return (1);
 	}
 	data = init_arg(&data, envp, argv);
-	pipex(f1, f2, &data);
-	close(f1);
-	close(f2);
+	if (check_path_access(&data) == 0)
+		pipex(f1, f2, &data);
+	ft_closing(f1, f2);
 	free_arg(&data);
 	return (0);
 }

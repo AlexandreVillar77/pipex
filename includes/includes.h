@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:18:33 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/04 11:45:47 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:08:52 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,5 +55,9 @@ int		ft_search(char *str);
 char	*ft_substr(char **envp);
 t_arg	init_arg(t_arg *arg, char **envp, char **argv);
 void	free_arg(t_arg *arg);
+
+//fichier utils2.c
+int		check_path_access(t_arg *data);
+int		check_fds(char**argv, int n);
 
 #endif

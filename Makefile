@@ -6,7 +6,7 @@
 #    By: avillar <avillar@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/21 11:11:31 by avillar           #+#    #+#              #
-#    Updated: 2022/04/04 12:16:02 by avillar          ###   ########.fr        #
+#    Updated: 2022/04/11 14:21:06 by avillar          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,7 @@ NAME		= pipex
 SRCS		=		pipex.c			\
 					ft_split.c		\
 					utils1.c		\
+					utils2.c		\
 					ft_strjoin.c	\
 
 CFLAG = -Wall -Wextra -Werror
