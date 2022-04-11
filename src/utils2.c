@@ -6,11 +6,18 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/11 14:17:20 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 15:08:22 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:59:58 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
+
+void	ft_cmdnotf(char *str, char *name)
+{
+	write(STDERR_FILENO, str, ft_strlen(str));
+	write(STDERR_FILENO, name, ft_strlen(name));
+	write(STDERR_FILENO, "\n", 1);
+}
 
 int	check_path_access(t_arg *data)
 {

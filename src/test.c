@@ -5,29 +5,20 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/21 11:32:36 by avillar           #+#    #+#             */
-/*   Updated: 2022/03/21 15:38:13 by avillar          ###   ########.fr       */
+/*   Created: 2022/04/11 16:03:35 by avillar           #+#    #+#             */
+/*   Updated: 2022/04/11 16:23:10 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/includes.h"
-/*
-int	*init_end(char *f1, char *f2)
-{
-	int	end[2];
-	int fd;
 
-	fd = open(f1, O_RDWR);
-	if (fd < 1)
-		return (NULL);
-	end[0] = fd;
-	fd = open(f2, O_RDWR);
-	if (fd < 1)
-		return (NULL);
-	end[1] = fd;
-	return (end);
+void	ft_closing(int f1, int f2)
+{
+	if (f1 >= 0)
+		close(f1);
+	if (f2 >= 0)
+		close(f2);
 }
-*/
 
 void	childpro1(int fd, t_arg *data, int *end)
 {
@@ -37,55 +28,140 @@ void	childpro1(int fd, t_arg *data, int *end)
 	i = -1;
 	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
 		return (perror("Dup2: "));
-	close(end[0]);
-	while (data->path[++i])
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd1_arg[0], X_OK) == 0)
+		execve(data->cmd1_arg[0], data->cmd1_arg, data->envp);
+	else
 	{
-		cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
-		execve(cmd, data->cmd1_arg + 1, data->envp);
-		//perror(cmd);
-		free(cmd);
+		while (data->path[++i] && data->path != NULL)
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd1_arg, data->envp);
+			free(cmd);
+		}
 	}
-	exit(EXIT_FAILURE);
+	ft_cmdnotf("command not found: ", data->cmd1_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
 }
 
-void	pipex(int f1, int f2, t_arg *data)
+void	childpro2(int fd, t_arg *data, int *end)
+{
+	int		i;
+	char	*cmd;
+
+	i = -1;
+	if (dup2(end[1], STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
+		return (perror("Dup2: "));
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd2_arg[0], X_OK) == 0)
+		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
+	else
+	{
+		while (data->path[++i])
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd2_arg, data->envp);
+			free(cmd);
+		}
+	}
+	ft_cmdnotf("command not found: ", data->cmd2_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
+}
+
+void	childlast(int fd, t_arg *data, int *end)
+{
+	int		i;
+	char	*cmd;
+
+	i = -1;
+	if (dup2(fd, STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
+		return (perror("Dup2: "));
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd2_arg[0], X_OK) == 0)
+		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
+	else
+	{
+		while (data->path[++i])
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd2_arg, data->envp);
+			free(cmd);
+		}
+	}
+	ft_cmdnotf("command not found: ", data->cmd2_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
+}
+
+void	pipex(int f1, int f2, t_arg *data, int pipes)
 {
 	int		end[2];
-	pid_t	parent;
+	int		status;
+	pid_t	child1;
+	pid_t	child2;
+	int		i;
 
-	pipe(end);
-	(void)f2;
-	parent = fork();
-	if (parent < 0)
-		return (perror("Fork:"));
-	if(parent == 0)
-		childpro1(f1, data, end);
+	i = 0;
+	if (pipe(end) == -1)
+		return (perror("Pipe: "));
+		child1 = fork();
+		if (child1 < 0)
+			return (perror("Fork: "));
+		if (child1 == 0)
+			childpro1(f1, data, end);
+	while (i < pipes)
+	{
+		child2 = fork();
+		if (child2 < 0)
+			return (perror("Fork: "));
+		if (child2 == 0)
+			childpro2(f2, data, end);
+		i++;
+		data->cmd2_arg[0] = data->argv[4 + i];
+	}
 	close(end[0]);
 	close(end[1]);
+	waitpid(child1, &status, 0);
+	waitpid(child2, &status, 0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	f1;
-	int	f2;
+	int		f1;
+	int		f2;
 	t_arg	data;
 
-	if (argc < 5 || argc > 5 || !envp)
+	if (argc < 5 || !envp)
 	{
 		ft_printf("Error, wrong number of argumet\n");
 		ft_printf("or cannot reach environnemnt variable PATH.\n");
 		return (1);
 	}
-	f1 = open(argv[1], O_RDONLY);
-	f2 = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	f1 = check_fds(argv, 1);
+	f2 = check_fds(argv, 2);
 	if (f1 < 0 || f2 < 0)
 	{
-		ft_printf("Cannot open %s or create %s\n", argv[1], argv[4]);
+		ft_closing(f1, f2);
 		return (1);
 	}
-	init_arg(&data, envp, argv);
-	pipex(f1, f2, &data);
+	data = init_arg(&data, envp, argv);
+	if (check_path_access(&data) == 0)
+		pipex(f1, f2, &data, argc - 4);
+	ft_closing(f1, f2);
 	free_arg(&data);
-	//ft_printf("rtn = %s\n", ft_substr(envp));
 	return (0);
 }

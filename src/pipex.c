@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:25:57 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 15:07:36 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/11 16:11:29 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	childpro1(int fd, t_arg *data, int *end)
 			free(cmd);
 		}
 	}
-	perror(data->cmd1_arg[0]);
+	ft_cmdnotf("command not found: ", data->cmd1_arg[0]);
 	free_arg(data);
 	exit (EXIT_FAILURE);
 }
@@ -73,7 +73,7 @@ void	childpro2(int fd, t_arg *data, int *end)
 			free(cmd);
 		}
 	}
-	perror(data->cmd2_arg[0]);
+	ft_cmdnotf("command not found: ", data->cmd2_arg[0]);
 	free_arg(data);
 	exit (EXIT_FAILURE);
 }
