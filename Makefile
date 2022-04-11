@@ -5,34 +5,56 @@
 #                                                     +:+ +:+         +:+      #
 #    By: avillar <avillar@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/03/21 11:11:31 by avillar           #+#    #+#              #
-#    Updated: 2022/04/11 14:21:06 by avillar          ###   ########.fr        #
+#    Created: 2022/03/23 12:50:52 by avillar           #+#    #+#              #
+#    Updated: 2022/04/11 12:09:08 by avillar          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= pipex
+NAME = push_swap
 
-SRCS		=		pipex.c			\
-					ft_split.c		\
-					utils1.c		\
-					utils2.c		\
-					ft_strjoin.c	\
+SRCS =		push_swap.c		\
+			ft_split.c		\
+			utils1.c		\
+			utils2.c		\
+			utils3.c		\
+			utils4.c		\
+			parsing.c		\
+			ft_swap1.c		\
+			ft_swap2.c		\
+			ft_swap3.c		\
+			algo_utils1.c	\
+			algo_utils2.c	\
+			algo_utils3.c	\
+
+SRC	=		test.c			\
+			ft_split.c		\
+			utils1.c		\
+			utils2.c		\
+			utils3.c		\
+			utils4.c		\
+			parsing.c		\
+			ft_swap1.c		\
+			ft_swap2.c		\
+			ft_swap3.c		\
+			algo_utils1.c	\
+			algo_utils2.c	\
+			algo_utils3.c	\
 
 CFLAG = -Wall -Wextra -Werror
 
 FSAN = -g3 -fsanitize=address
 
-OBJS = $(addprefix src/, ${SRCS:.c=.o})
+OBJS = $(addprefix src/, ${SRC:.c=.o})
 
 CC	= gcc
 
 all: ft_printf/libprintf.a ${NAME}
 
 .c.o:
-	$(CC) $(CFLAG) -Ift_printf -c -I/includes/includes.h $< -o $@
+	$(CC) $(CFLAG) -Ift_printf -c -I/include/includes.h $< -o $@
 
 ${NAME}: ${OBJS}
-	${CC} ${OBJS} -g3 -Lft_printf -lprintf -o $(NAME)
+	${CC} ${OBJS} -Lft_printf -lprintf -o $(NAME)
 
 ft_printf/libprintf.a:
 	make -C ft_printf

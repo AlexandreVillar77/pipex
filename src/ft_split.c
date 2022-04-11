@@ -5,12 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/21 13:35:13 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 15:25:44 by avillar          ###   ########.fr       */
+/*   Created: 2022/03/23 13:18:43 by avillar           #+#    #+#             */
+/*   Updated: 2022/03/23 15:36:49 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/includes.h"
+#include "../include/includes.h"
 
 int	countcase(char const *s, char c)
 {
@@ -41,20 +41,18 @@ int	sizel(char const *s, int i, char c)
 	return (len);
 }
 
-void	fill_tab(char const *s, char c, t_split *split, char *dst)
+void	fill_tab(char const *s, char c, int x, char *dst)
 {
 	int	i;
-	int	x;
 
 	i = 0;
-	x = split->i;
 	while (s[x] != c && s[x])
 	{
 		dst[i] = s[x];
 		i++;
 		x++;
 	}
-	if (split->mode == 1)
+	if (dst[0] == '/')
 	{
 		dst[i] = '/';
 		i++;
@@ -69,28 +67,28 @@ int	skipc(const char *s, char c, int i)
 	return (i);
 }
 
-char	**ft_split(char const *s, char c, int mode)
+char	**ft_split(char const *s, char c)
 {
 	char		**rtn;
 	t_split		split;
 
 	if (s == 0)
 		return (0);
-	rtn = malloc(sizeof(char *) * ((countcase(s, c) + 1)));
+	rtn = malloc(sizeof(char *) * (countcase(s, c)) + 1);
 	if (!rtn)
 		return (0);
-	init_split(&split, s, c, mode);
+	init_split(&split, s, c);
 	while (split.j <= countcase(s, c) && s[split.i])
 	{
 		split.len = sizel(s, split.i, c);
-		rtn[split.j] = malloc(sizeof(char) * (split.len + 2));
+		rtn[split.j] = malloc(sizeof(char) * split.len + 2);
 		if (!(rtn[split.j]))
 			return (0);
-		fill_tab(s, c, &split, rtn[split.j]);
+		fill_tab(s, c, split.i, rtn[split.j]);
 		split.i += split.len;
 		split.i = skipc(s, c, split.i);
 		split.j++;
 	}
-	rtn[split.j] = 0;
+	rtn[split.j] = NULL;
 	return (rtn);
 }
