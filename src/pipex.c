@@ -6,7 +6,7 @@
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 11:25:57 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 16:11:29 by avillar          ###   ########.fr       */
+/*   Updated: 2022/04/14 16:25:58 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,16 @@ void	ft_closing(int f1, int f2)
 		close(f2);
 }
 
-void	childpro1(int fd, t_arg *data, int *end)
+void	childpro1(int *fd, t_arg *data, int *end)
 {
 	int		i;
 	char	*cmd;
 
 	i = -1;
-	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
+	if (dup2(fd[0], STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
 		return (perror("Dup2: "));
 	ft_closing(end[0], end[1]);
-	close(fd);
+	ft_closing(fd[0], fd[1]);
 	if (access(data->cmd1_arg[0], X_OK) == 0)
 		execve(data->cmd1_arg[0], data->cmd1_arg, data->envp);
 	else
@@ -49,16 +49,18 @@ void	childpro1(int fd, t_arg *data, int *end)
 	exit (EXIT_FAILURE);
 }
 
-void	childpro2(int fd, t_arg *data, int *end)
+//check leaks child 2
+
+void	childpro2(int *fd, t_arg *data, int *end)
 {
 	int		i;
 	char	*cmd;
 
 	i = -1;
-	if (dup2(fd, STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
+	if (dup2(fd[1], STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
 		return (perror("Dup2: "));
 	ft_closing(end[0], end[1]);
-	close(fd);
+	ft_closing(fd[0], fd[1]);
 	if (access(data->cmd2_arg[0], X_OK) == 0)
 		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
 	else
@@ -78,7 +80,7 @@ void	childpro2(int fd, t_arg *data, int *end)
 	exit (EXIT_FAILURE);
 }
 
-void	pipex(int f1, int f2, t_arg *data)
+void	pipex(int *fd, t_arg *data)
 {
 	int		end[2];
 	int		status;
@@ -91,12 +93,12 @@ void	pipex(int f1, int f2, t_arg *data)
 	if (child1 < 0)
 		return (perror("Fork: "));
 	if (child1 == 0)
-		childpro1(f1, data, end);
+		childpro1(fd, data, end);
 	child2 = fork();
 	if (child2 < 0)
 		return (perror("Fork: "));
 	if (child2 == 0)
-		childpro2(f2, data, end);
+		childpro2(fd, data, end);
 	close(end[0]);
 	close(end[1]);
 	waitpid(child1, &status, 0);
@@ -105,8 +107,7 @@ void	pipex(int f1, int f2, t_arg *data)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int		f1;
-	int		f2;
+	int		fd[2];
 	t_arg	data;
 
 	if (argc < 5 || argc > 5 || !envp)
@@ -115,17 +116,17 @@ int	main(int argc, char **argv, char **envp)
 		ft_printf("or cannot reach environnemnt variable PATH.\n");
 		return (1);
 	}
-	f1 = check_fds(argv, 1);
-	f2 = check_fds(argv, 2);
-	if (f1 < 0 || f2 < 0)
+	fd[0] = check_fds(argv, 1);
+	fd[1] = check_fds(argv, 2);
+	if (fd[0] < 0 || fd[1] < 0)
 	{
-		ft_closing(f1, f2);
+		ft_closing(fd[0], fd[1]);
 		return (1);
 	}
 	data = init_arg(&data, envp, argv);
 	if (check_path_access(&data) == 0)
-		pipex(f1, f2, &data);
-	ft_closing(f1, f2);
+		pipex(fd, &data);
+	ft_closing(fd[0], fd[1]);
 	free_arg(&data);
 	return (0);
 }
