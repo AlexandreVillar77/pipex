@@ -5,95 +5,163 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/23 13:20:19 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/11 12:23:03 by avillar          ###   ########.fr       */
+/*   Created: 2022/04/11 16:03:35 by avillar           #+#    #+#             */
+/*   Updated: 2022/04/11 16:23:10 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/includes.h"
+#include "../includes/includes.h"
 
-void	sort_a(t_swap *swap)
+void	ft_closing(int f1, int f2)
 {
-	int	min;
-	int	cut;
-
-	cut = 0;
-	while (is_sorted(swap->a, swap->asize) == 1)
-	{
-		min = find_min(swap->a, swap->asize);
-		cut++;
-		topa_tob(swap, min);
-	}
-	while (swap->bsize > 0)
-		pa(swap);
+	if (f1 >= 0)
+		close(f1);
+	if (f2 >= 0)
+		close(f2);
 }
 
-void	sort_b(t_swap *swap)
-{
-	int	max;
-	int	s;
-
-	s = 0;
-	while (s < swap->chunk_size)
-	{
-		s++;
-		max = find_max_under(swap->b, swap->bsize, swap->b_min_sort);
-		topb_toa(swap, max);
-	}
-	while (next_issorted(swap->a, --s) == 0)
-		pb(swap);
-}
-
-/*****************************************************************
- * algo sort_b apres permier chunk need rb rrb remise en place des valeur
- * apres chaque pa;
- * 
- * 
- * 
- * 
- * ft_printf("min_sort = %d\n", swap->b_min_sort);
- * 
- * 
- * 
- * **************************************************************/
-void	algo1(t_swap *swap)
-{
-	push25_tob(swap, find_quart1(swap));
-	sort_b(swap);
-	push25_tob(swap, find_quart1(swap));
-	swap->b_min_sort = find_max(swap->b, swap->bsize) + 1;
-	sort_b(swap);
-	push25_tob(swap, find_quart1(swap));
-	swap->b_min_sort = find_max(swap->b, swap->bsize) + 1;
-	sort_b(swap);
-	sort_a(swap);
-}
-
-int	main(int argc, char **argv)
+void	childpro1(int fd, t_arg *data, int *end)
 {
 	int		i;
-	t_swap	swap;
+	char	*cmd;
 
 	i = -1;
-	if (argc < 2)
-		return (1);
-	swap = parse(argv[1]);
-	if (parse_check(argv[1]) == 1 || parse_nodup(&swap) == 1)
-		return (1);
-	if (is_sorted(swap.a, swap.asize) == 0)
-		return (0);
-	algo1(&swap);
-	i++;
-	/*while (i < swap.asize || i < swap.bsize)
+	if (dup2(fd, STDIN_FILENO) < 0 || dup2(end[1], STDOUT_FILENO) < 0)
+		return (perror("Dup2: "));
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd1_arg[0], X_OK) == 0)
+		execve(data->cmd1_arg[0], data->cmd1_arg, data->envp);
+	else
 	{
-		if (i < swap.asize)
-			ft_printf("swap -> a = %d", swap.a[i]);
-		if (i < swap.bsize)
+		while (data->path[++i] && data->path != NULL)
 		{
-			ft_printf("  ||  swap -> b = %d", swap.b[i]);
+			cmd = ft_strjoin(data->path[i], data->cmd1_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd1_arg, data->envp);
+			free(cmd);
 		}
-		ft_printf("\n");
+	}
+	ft_cmdnotf("command not found: ", data->cmd1_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
+}
+
+void	childpro2(int fd, t_arg *data, int *end)
+{
+	int		i;
+	char	*cmd;
+
+	i = -1;
+	if (dup2(end[1], STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
+		return (perror("Dup2: "));
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd2_arg[0], X_OK) == 0)
+		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
+	else
+	{
+		while (data->path[++i])
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd2_arg, data->envp);
+			free(cmd);
+		}
+	}
+	ft_cmdnotf("command not found: ", data->cmd2_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
+}
+
+void	childlast(int fd, t_arg *data, int *end)
+{
+	int		i;
+	char	*cmd;
+
+	i = -1;
+	if (dup2(fd, STDOUT_FILENO) < 0 || dup2(end[0], STDIN_FILENO) < 0)
+		return (perror("Dup2: "));
+	ft_closing(end[0], end[1]);
+	close(fd);
+	if (access(data->cmd2_arg[0], X_OK) == 0)
+		execve(data->cmd2_arg[0], data->cmd2_arg, data->envp);
+	else
+	{
+		while (data->path[++i])
+		{
+			cmd = ft_strjoin(data->path[i], data->cmd2_arg[0]);
+			if (!cmd)
+				break ;
+			if (access(cmd, X_OK) == 0)
+				execve(cmd, data->cmd2_arg, data->envp);
+			free(cmd);
+		}
+	}
+	ft_cmdnotf("command not found: ", data->cmd2_arg[0]);
+	free_arg(data);
+	exit (EXIT_FAILURE);
+}
+
+void	pipex(int f1, int f2, t_arg *data, int pipes)
+{
+	int		end[2];
+	int		status;
+	pid_t	child1;
+	pid_t	child2;
+	int		i;
+
+	i = 0;
+	if (pipe(end) == -1)
+		return (perror("Pipe: "));
+		child1 = fork();
+		if (child1 < 0)
+			return (perror("Fork: "));
+		if (child1 == 0)
+			childpro1(f1, data, end);
+	while (i < pipes)
+	{
+		child2 = fork();
+		if (child2 < 0)
+			return (perror("Fork: "));
+		if (child2 == 0)
+			childpro2(f2, data, end);
 		i++;
-	}*/
+		data->cmd2_arg[0] = data->argv[4 + i];
+	}
+	close(end[0]);
+	close(end[1]);
+	waitpid(child1, &status, 0);
+	waitpid(child2, &status, 0);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	int		f1;
+	int		f2;
+	t_arg	data;
+
+	if (argc < 5 || !envp)
+	{
+		ft_printf("Error, wrong number of argumet\n");
+		ft_printf("or cannot reach environnemnt variable PATH.\n");
+		return (1);
+	}
+	f1 = check_fds(argv, 1);
+	f2 = check_fds(argv, 2);
+	if (f1 < 0 || f2 < 0)
+	{
+		ft_closing(f1, f2);
+		return (1);
+	}
+	data = init_arg(&data, envp, argv);
+	if (check_path_access(&data) == 0)
+		pipex(f1, f2, &data, argc - 4);
+	ft_closing(f1, f2);
+	free_arg(&data);
 	return (0);
 }

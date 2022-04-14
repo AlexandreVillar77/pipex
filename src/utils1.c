@@ -5,82 +5,95 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: avillar <avillar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/23 13:13:43 by avillar           #+#    #+#             */
-/*   Updated: 2022/04/07 14:58:21 by avillar          ###   ########.fr       */
+/*   Created: 2022/03/21 13:33:23 by avillar           #+#    #+#             */
+/*   Updated: 2022/04/11 16:16:48 by avillar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/includes.h"
+#include "../includes/includes.h"
 
-void	init_swap(t_swap *swap, int *a, int size)
-{
-	swap->a = a;
-	swap->b = NULL;
-	swap->bsize = 0;
-	swap->asize = size;
-	swap->aini_size = size;
-	swap->bini_size = swap->aini_size / 2;
-	swap->b_min_sort = find_max(swap->a, swap->asize) + 1;
-	swap->chunk_size = 0;
-	swap->chunk = NULL;
-}
-
-t_swap	parse(char *str)
-{
-	int		*res;
-	int		i;
-	char	**tab;
-	t_swap	swap;
-
-	i = 0;
-	tab = ft_split(str, ' ');
-	res = malloc(sizeof(int) * (ft_tablen(tab)));
-	while (tab[i])
-	{
-		res[i] = ft_atoi(tab[i]);
-		i++;
-	}
-	init_swap(&swap, res, ft_tablen(tab));
-	free(tab);
-	return (swap);
-}
-
-int	ft_tablen(char **tab)
+int	ft_strcmp(char *s1, char *s2)
 {
 	int	i;
 
 	i = 0;
-	while (tab[i])
-		i++;
-	return (i);
-}
-
-void	init_split(t_split *split, const char *s, char c)
-{
-	split->i = skipc(s, c, 0);
-	split->j = 0;
-	split->len = 0;
-}
-
-int	ft_atoi(const char *str)
-{
-	long int		rtn;
-	int				nb;
-
-	rtn = 0;
-	nb = 1;
-	while (*str == ' ' || *str == '\t' || *str == '\n' || *str == '\f'
-		|| *str == '\r' || *str == '\v')
-		str++;
-	if (*str == '-')
-		nb = -1;
-	if (*str == '-' || *str == '+')
-		str++;
-	while (*str >= 48 && *str <= 57)
+	while (s1[i] && s2[i] && s1[i] == s2[i])
 	{
-		rtn *= 10;
-		rtn += *str - 48;
-		str++;
+		if (s1[i] != s2[i])
+			return (0);
+		i++;
 	}
-	return (rtn * nb);
+	if (i == 4)
+		return (1);
+	return (0);
+}
+
+int	ft_search(char *str)
+{
+	int		i;
+	char	*s;
+
+	s = "PATH";
+	i = 0;
+	while (str[i])
+	{
+		if (str[0] == 'P')
+			if (ft_strcmp(str + i, s) == 1)
+				return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	*ft_substr(char **envp)
+{
+	int		i;
+	int		res;
+
+	i = 0;
+	while (envp[i])
+	{
+		res = ft_search(envp[i]);
+		if (res == 1)
+			return (envp[i] + 5);
+		i++;
+	}
+	return (NULL);
+}
+
+t_arg	init_arg(t_arg *arg, char **envp, char **argv)
+{
+	arg->cmd1_arg = ft_split(argv[2], ' ', 0);
+	arg->cmd2_arg = ft_split(argv[3], ' ', 0);
+	arg->path = ft_split(ft_substr(envp), ':', 1);
+	arg->envp = envp;
+	arg->argv = argv;
+	return (*arg);
+}
+
+void	free_arg(t_arg *arg)
+{
+	int	i;
+
+	i = -1;
+	if (arg->cmd1_arg[0])
+	{
+		while (arg->cmd1_arg[++i])
+			free(arg->cmd1_arg[i]);
+		free(arg->cmd1_arg);
+	}
+	i = -1;
+	if (arg->cmd2_arg[0])
+	{
+		while (arg->cmd2_arg[++i])
+			free(arg->cmd2_arg[i]);
+		free(arg->cmd2_arg);
+	}
+	i = -1;
+	if (arg->path)
+	{
+		while (arg->path[++i])
+			free(arg->path[i]);
+		free(arg->path);
+	}
 }
